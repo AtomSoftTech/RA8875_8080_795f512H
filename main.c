@@ -72,7 +72,11 @@ char usr_msg[128];
 
 void init_board(void);
 
+Touch OldTouch;
+
 void main() {
+    int fSize = 20;
+
     init_board();
     TRISEbits.TRISE5 = 0;   //USR_LED = output
 
@@ -106,6 +110,15 @@ void main() {
                 ft5x0x_read_data();
 
                 SetColors(fColor,bColor);
+
+                FontWrite_Position(0,10);
+                String("  AtomSoftTech - RA8875 7\" TFT with Capacitive Touch");
+
+                FontWrite_Position(0,30);
+                String("  MCU: PIC32MX795F512H");
+
+                FontWrite_Position(0,50);
+                String("  LCD Mode: 8080 - 8bit");
 
                 FontWrite_Position(0,100);
                 sprintf(usr_msg, "  X1: %i    ",ts_event.x1);
@@ -150,21 +163,24 @@ void main() {
                 switch(ts_event.touch_point)
                 {
                     case 5:
-                        DrawCircle(ts_event.x5,ts_event.y5,10,color_purple,1);delay_us(50);
+                        DrawCircle(OldTouch.x5,OldTouch.y5,fSize,color_white,1);delay_us((fSize*10));
+                        DrawCircle(ts_event.x5,ts_event.y5,fSize,color_purple,1);delay_us((fSize*10));
                     case 4:
-                        DrawCircle(ts_event.x4,ts_event.y4,10,color_cyan,1);delay_us(50);
+                        DrawCircle(OldTouch.x4,OldTouch.y4,fSize,color_white,1);delay_us((fSize*10));
+                        DrawCircle(ts_event.x4,ts_event.y4,fSize,color_cyan,1);delay_us((fSize*10));
                     case 3:
-                        DrawCircle(ts_event.x3,ts_event.y3,10,color_blue,1);delay_us(50);
+                        DrawCircle(OldTouch.x3,OldTouch.y3,fSize,color_white,1);delay_us((fSize*10));
+                        DrawCircle(ts_event.x3,ts_event.y3,fSize,color_blue,1);delay_us((fSize*10));
                     case 2:
-                        DrawCircle(ts_event.x2,ts_event.y2,10,color_green,1);delay_us(50);
+                        DrawCircle(OldTouch.x2,OldTouch.y2,fSize,color_white,1);delay_us((fSize*10));
+                        DrawCircle(ts_event.x2,ts_event.y2,fSize,color_green,1);delay_us((fSize*10));
                     case 1:
-                        DrawCircle(ts_event.x1,ts_event.y1,10,color_red,1);
+                        DrawCircle(OldTouch.x1,OldTouch.y1,fSize,color_white,1);delay_us((fSize*10));
+                        DrawCircle(ts_event.x1,ts_event.y1,fSize,color_red,1);delay_us((fSize*10));
                         break;
                 }
-                
-                
-                
 
+                OldTouch = ts_event;
             }while(isPEN()==0);
 
 

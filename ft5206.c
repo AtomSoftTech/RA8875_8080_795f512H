@@ -1,19 +1,17 @@
 #include "i2c2.h"
 #include "ft5206.h"
+#include "main.h"
 
 Touch ts_event;
 
 void delayus(int time)
 {
-    unsigned int j;
-    while(time--)
-        for(j=0;j<48;j++);
+    delay_us(time);
 }
 
 void _nop_()
 {
-    unsigned char j;
-    for(j=0;j<4;j++);
+    Nop();
 }
 
 char SDA_IN(void)
@@ -28,9 +26,9 @@ void TOUCH_Start(void)
 	SDA_HIGH;
 	_nop_();
 	SCL_HIGH;
-	delayus(5);
+	delayus(2);
 	SDA_LOW;
-	delayus(5);
+	delayus(2);
 	SCL_LOW;
 	_nop_();
 }
@@ -42,9 +40,9 @@ void TOUCH_Stop(void)
 	SDA_LOW;
 	_nop_();
 	SCL_HIGH;
-	delayus(5);
+	delayus(2);
 	SDA_HIGH;
-	delayus(5);
+	delayus(2);
 	SCL_LOW;
 	_nop_();
 }
@@ -78,9 +76,9 @@ unsigned char TOUCH_Wait_Ack(void)
 void TOUCH_Ack(void)
 {	SCL_LOW;
 	SDA_LOW;
-	delayus(2);
+	delayus(1);
 	SCL_HIGH;
-	delayus(2);
+	delayus(1);
 	SCL_LOW;
 	_nop_();
 }
@@ -91,9 +89,9 @@ void TOUCH_Ack(void)
 void TOUCH_NAck(void)
 {	SCL_LOW;
 	SDA_HIGH;
-	delayus(2);
+	delayus(1);
 	SCL_HIGH;
-	delayus(2);
+	delayus(1);
 	SCL_LOW;
 	_nop_();
 }
@@ -113,11 +111,11 @@ void TOUCH_Send_Byte(unsigned char data)
             SDA_LOW;
 
         data <<=1;
-        delayus(2);
+        delayus(1);
         SCL_HIGH;
-        delayus(2);
+        delayus(1);
         SCL_LOW;
-        delayus(2);
+        delayus(1);
     }
 
 
@@ -165,9 +163,9 @@ unsigned char TOUCH_Read_Byte(unsigned char ack)
         if(isSDA == 1)
             receive |= 0x01;
 
-        delayus(2);
+        delayus(1);
         SCL_LOW;
-        delayus(2);
+        delayus(1);
     }
 
 
