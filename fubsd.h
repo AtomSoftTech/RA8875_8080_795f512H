@@ -1,0 +1,156 @@
+/* 
+ * File:   fubsd.h
+ * Author: Jason
+ *
+ * Created on JULY 5, 2014, 3:27 PM
+ */
+
+#ifndef FUBSD_H
+#define	FUBSD_H
+
+#define FUB_PAD0  (1<<8)
+#define FUB_PAD1  (1<<9)
+#define FUB_PAD2  (1<<10)
+#define FUB_PAD3  (1<<11)
+#define FUB_PAD4  (1<<0)
+#define FUB_PAD5  (1<<13)
+#define FUB_PAD6  (1<<14)
+#define FUB_PAD7  (1<<1)
+#define FUB_PAD8  (1<<2)
+#define FUB_PAD9  (1<<3)
+#define FUB_PAD10 (1<<4)
+#define FUB_PAD11 (1<<5)
+#define FUB_PAD12 (1<<6)
+#define FUB_PAD13 (1<<7)
+#define FUB_PAD14 (1<<0)
+#define FUB_PAD15 (1<<1)
+#define FUB_PAD16 (1<<0)
+#define FUB_PAD17 (1<<1)
+#define FUB_PAD18 (1<<2)
+#define FUB_PAD19 (1<<3)
+#define FUB_PAD20 (1<<4)
+#define FUB_PAD21 (1<<5)
+#define FUB_PAD22 (1<<6)
+#define FUB_PAD23 (1<<7)
+#define FUB_PAD24 (1<<6)
+#define FUB_PAD25 (1<<7)
+#define FUB_PAD26 (1<<8)
+#define FUB_PAD27 (1<<9)
+#define FUB_PAD28 (1<<4)
+#define FUB_PAD29 (1<<5)
+#define FUB_PAD30 (1<<4)
+#define FUB_PAD31 (1<<3)
+#define FUB_PAD32 (1<<2)
+#define FUB_PAD33 (1<<1)
+#define FUB_PAD34 (1<<0)
+#define FUB_PAD35 (1<<7)
+#define FUB_PAD36 (1<<6)
+#define FUB_PAD37 (1<<8)
+#define FUB_PAD38 (1<<9)
+#define FUB_PAD39 (1<<10)
+#define FUB_PAD40 (1<<11)
+#define FUB_PAD41 (1<<12)
+#define FUB_PAD42 (1<<13)
+#define FUB_PAD43 (1<<14)
+#define FUB_PAD44 (1<<15)
+
+#define PORT_FUB_P0  LATD
+#define PORT_FUB_P1  LATD
+#define PORT_FUB_P2  LATD
+#define PORT_FUB_P3  LATD
+#define PORT_FUB_P4  LATD
+#define PORT_FUB_P5  LATC
+#define PORT_FUB_P6  LATC
+#define PORT_FUB_P7  LATD
+#define PORT_FUB_P8  LATD
+#define PORT_FUB_P9  LATD
+#define PORT_FUB_P10 LATD
+#define PORT_FUB_P11 LATD
+#define PORT_FUB_P12 LATD
+#define PORT_FUB_P13 LATD
+#define PORT_FUB_P14 LATF
+#define PORT_FUB_P15 LATF
+#define PORT_FUB_P16 LATE
+#define PORT_FUB_P17 LATE
+#define PORT_FUB_P18 LATE
+#define PORT_FUB_P19 LATE
+#define PORT_FUB_P20 LATE
+#define PORT_FUB_P21 LATE
+#define PORT_FUB_P22 LATE
+#define PORT_FUB_P23 LATE
+#define PORT_FUB_P24 LATG
+#define PORT_FUB_P25 LATG
+#define PORT_FUB_P26 LATG
+#define PORT_FUB_P27 LATG
+#define PORT_FUB_P28 LATF
+#define PORT_FUB_P29 LATF
+#define PORT_FUB_P30 LATB
+#define PORT_FUB_P31 LATB
+#define PORT_FUB_P32 LATB
+#define PORT_FUB_P33 LATB
+#define PORT_FUB_P34 LATB
+#define PORT_FUB_P35 LATB
+#define PORT_FUB_P36 LATB
+#define PORT_FUB_P37 LATB
+#define PORT_FUB_P38 LATB
+#define PORT_FUB_P39 LATB
+#define PORT_FUB_P40 LATB
+#define PORT_FUB_P41 LATB
+#define PORT_FUB_P42 LATB
+#define PORT_FUB_P43 LATB
+#define PORT_FUB_P44 LATB
+
+
+#define FUB_P0  IOPORT_D,FUB_PAD0
+#define FUB_P1  IOPORT_D,FUB_PAD1
+#define FUB_P2  IOPORT_D,FUB_PAD2
+#define FUB_P3  IOPORT_D,FUB_PAD3
+#define FUB_P4  IOPORT_D,FUB_PAD4
+#define FUB_P5  IOPORT_C,FUB_PAD5
+#define FUB_P6  IOPORT_C,FUB_PAD6
+#define FUB_P7  IOPORT_D,FUB_PAD7
+#define FUB_P8  IOPORT_D,FUB_PAD8
+#define FUB_P9  IOPORT_D,FUB_PAD9
+#define FUB_P10 IOPORT_D,FUB_PAD10
+#define FUB_P11 IOPORT_D,FUB_PAD11
+#define FUB_P12 IOPORT_D,FUB_PAD12
+#define FUB_P13 IOPORT_D,FUB_PAD13
+#define FUB_P14 IOPORT_F,FUB_PAD14
+#define FUB_P15 IOPORT_F,FUB_PAD15
+#define FUB_P16 IOPORT_E,FUB_PAD16
+#define FUB_P17 IOPORT_E,FUB_PAD17
+#define FUB_P18 IOPORT_E,FUB_PAD18
+#define FUB_P19 IOPORT_E,FUB_PAD19
+#define FUB_P20 IOPORT_E,FUB_PAD20
+#define FUB_P21 IOPORT_E,FUB_PAD21
+#define FUB_P22 IOPORT_E,FUB_PAD22
+#define FUB_P23 IOPORT_E,FUB_PAD23
+#define FUB_P24 IOPORT_G,FUB_PAD24
+#define FUB_P25 IOPORT_G,FUB_PAD25
+#define FUB_P26 IOPORT_G,FUB_PAD26
+#define FUB_P27 IOPORT_G,FUB_PAD27
+#define FUB_P28 IOPORT_F,FUB_PAD28
+#define FUB_P29 IOPORT_F,FUB_PAD29
+#define FUB_P30 IOPORT_B,FUB_PAD30
+#define FUB_P31 IOPORT_B,FUB_PAD31
+#define FUB_P32 IOPORT_B,FUB_PAD32
+#define FUB_P33 IOPORT_B,FUB_PAD1
+#define FUB_P34 IOPORT_B,FUB_PAD2
+#define FUB_P35 IOPORT_B,FUB_PAD3
+#define FUB_P36 IOPORT_B,FUB_PAD4
+#define FUB_P37 IOPORT_B,FUB_PAD5
+#define FUB_P38 IOPORT_B,FUB_PAD6
+#define FUB_P39 IOPORT_B,FUB_PAD7
+#define FUB_P40 IOPORT_B,FUB_PAD8
+#define FUB_P41 IOPORT_B,FUB_PAD9
+#define FUB_P42 IOPORT_B,FUB_PAD10
+#define FUB_P43 IOPORT_B,FUB_PAD11
+#define FUB_P44 IOPORT_B,FUB_PAD12
+
+
+#define USR_LED  LATEbits.LATE5
+#define USR_BTN  IOPORT_E,FUB_PAD27
+
+
+#endif	/* FUBSD_H */
+
