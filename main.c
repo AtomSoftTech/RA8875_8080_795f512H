@@ -17,6 +17,12 @@
 #include "RA8875.h"
 #include "ft5206.h"
 
+#include "spi2.h"
+#include "ff.h"
+#include "diskio.h"
+
+#include "keyboard.h"
+
 //* Oscillator Settings
 #pragma config FNOSC    = PRIPLL                                // Oscillator selection
 #pragma config POSCMOD  = HS                                    // Primary oscillator mode
@@ -65,17 +71,28 @@
 #define T1_TICK               (SYS_FREQ/PB_DIV/PRESCALE/TOGGLES_PER_SEC)
 
 
-uint fColor = color_black;
-uint bColor = color_white;
+unsigned int fColor = color_black;
+unsigned int bColor = color_white;
 
 char usr_msg[128];
 
 void init_board(void);
 
 Touch OldTouch;
+FATFS fs;          // Work area (file system object) for the volume
+BYTE FILE_IN_BUFF[512];
+DSTATUS iStat;
+char messageOut[128];
+FIL fil;       /* File object */
+char line[82]; /* Line buffer */
+volatile Keyboard AtomKB;
 
 void main() {
-    int fSize = 20;
+    int fSize = 30;
+    unsigned int tryCount = 1;
+    unsigned int FFST = 0;
+    unsigned int i,t;
+    char keytemp;
 
     init_board();
     TRISEbits.TRISE5 = 0;   //USR_LED = output
@@ -100,6 +117,180 @@ void main() {
     FontWrite_Position(0,50);
     String("  LCD Mode: 8080 - 8bit");
 
+    FontWrite_Position(0,90);
+    String("  Insert SD Card...Waiting");
+
+    SpiChnClose(2);
+    SpiInitDevice(2,SPI_SLOWEST,0);
+
+    while(isCD() == 1);
+    FontWrite_Position(0,110);
+    String("  SD Card...Found!");
+
+    do
+    {
+        while(isCD() == 1);
+        iStat = FR_NOT_READY;
+        Delay10ms(20);
+        FontWrite_Position(0,130);
+
+        sprintf(messageOut, "  Mounting SD Card with Elm Chan's FatFS. Try #%d  \0", tryCount);
+        String(messageOut);
+        tryCount++;
+        iStat = f_mount(&fs, "", 1);//(&fs);  //MountSD(fs);
+    }
+    while(iStat != FR_OK);
+
+    if(fs.fs_type == FS_FAT12)
+        FFST = 12;
+    if(fs.fs_type == FS_FAT16)
+        FFST = 16;
+    if(fs.fs_type == FS_FAT32)
+        FFST = 32;
+
+    SpiChnClose(2);
+    SpiInitDevice(2,SPI_MED1,0);
+
+    FontWrite_Position(0,150);
+    sprintf(messageOut, "  SD Card Filesystem... FAT%d  \0", FFST);
+    String(messageOut);
+
+    FontWrite_Position(0,190);
+    sprintf(messageOut, "  Initiating Keyboard...  \0");
+    String(messageOut);
+
+    for(i=0;i<5;i++)
+    {
+        FontWrite_Position(0,210);
+        sprintf(messageOut, "  Loading in ... %d\0", (5-i));
+        String(messageOut);
+        delay_ms(999);
+    }
+
+/*
+    SetColors(fColor,bColor);//delay_ms(2);
+    ClearScreen(0);delay_ms(30);
+    draw_kb(SHIFT,100,260,600,color_black,color_white,color_black);
+    delay_ms(2000);
+
+    SetColors(fColor,bColor);//delay_ms(2);
+    ClearScreen(0);delay_ms(30);
+    draw_kb(SHIFT,100,260,600,color_black,color_red,color_white);
+    delay_ms(2000);
+
+    SetColors(fColor,bColor);//delay_ms(2);
+    ClearScreen(0);delay_ms(30);
+    draw_kb(SHIFT,100,260,600,color_black,color_purple,color_white);
+    delay_ms(2000);
+*/
+    SetColors(fColor,bColor);//delay_ms(2);
+    ClearScreen(0);delay_ms(30);
+    AtomKB = draw_kb(NOSHIFT,100,200,600,color_black,color_blue,color_white);
+
+    SetColors(fColor,bColor);//delay_ms(2);
+    
+    for(i=0;i<128;i++)
+        messageOut[i] = 0x20;
+
+    messageOut[0] = '_';
+    i = 0;
+
+    while(1)
+    {
+        if(CheckPen() == 0)        //The touch screen is pressed
+        {
+            do
+            {
+                ft5x0x_read_data();
+
+                keytemp = isKey(AtomKB, ts_event.x1,ts_event.y1);
+                
+                if(keytemp)
+                {
+                    if(i == 100)
+                    {
+                        i = 0; //RESET CUR POS IN BUFF
+                        for(t=0;t<128;t++){
+                            messageOut[t] = 0x20;
+                            messageOut[0] = '_';
+                        }
+                    }
+
+                    
+
+                    if(AtomKB.shift == 1)
+                    {
+                        if(AtomKB.caps == 0)
+                        {
+                            AtomKB = draw_kb(NOSHIFT,100,200,600,color_black,color_blue,color_white);
+                        }
+                    }
+                    switch(keytemp)
+                    {
+                        case 0x08:  //DEL
+                            if((i > 0))
+                                i--;
+
+                            messageOut[i] = 0x20;
+                            messageOut[i+1] = 0x20;
+                            messageOut[i] = '_';
+                            break;
+                        case 0x0d:  //RETURN
+                            messageOut[i++] = '[';
+                            messageOut[i++] = 'E';
+                            messageOut[i++] = 'N';
+                            messageOut[i++] = 'T';
+                            messageOut[i++] = ']';
+                            messageOut[i] = '_';
+                            break;
+                        case 0x09:  //TAB
+                            messageOut[i++] = '[';
+                            messageOut[i++] = 'T';
+                            messageOut[i++] = 'A';
+                            messageOut[i++] = 'B';
+                            messageOut[i++] = ']';
+                            messageOut[i] = '_';
+                            break;
+                        case 0x1c:
+                            if(AtomKB.caps == 0){
+                                AtomKB = draw_kb(CAPS,100,200,600,color_black,color_blue,color_white);
+                            }else{
+                                AtomKB = draw_kb(NOSHIFT,100,200,600,color_black,color_blue,color_white);
+                            }
+                            break;
+                        case 0x1d:
+                            if(AtomKB.caps == 1) break;
+
+                            if(AtomKB.shift == 0){
+                                AtomKB = draw_kb(SHIFT,100,200,600,color_black,color_blue,color_white);
+                            } else {
+                                AtomKB = draw_kb(NOSHIFT,100,200,600,color_black,color_blue,color_white);
+                            }
+                            break;
+                        default:
+                            messageOut[i++] = keytemp;
+                            messageOut[i] = '_';
+                            break;
+                    }
+                    SetColors(fColor,bColor);
+                    FontWrite_Position(10,100);
+                    String(messageOut);
+                    delay_ms(160);
+                }
+            }while(isPEN()==0);
+
+
+            ts_event.Key_Sta=Key_Up;
+        }
+    }
+    while(1);   //TEST STOP HERE
+
+    SetColors(fColor,bColor);
+    //OpenASI("main.asi",0,0);
+    delay_ms(10000);
+    ClearScreen(0);
+    delay_ms(200);
+
     while(1)
     {
 
@@ -111,72 +302,63 @@ void main() {
 
                 SetColors(fColor,bColor);
 
-                FontWrite_Position(0,10);
-                String("  AtomSoftTech - RA8875 7\" TFT with Capacitive Touch");
-
-                FontWrite_Position(0,30);
-                String("  MCU: PIC32MX795F512H");
-
-                FontWrite_Position(0,50);
-                String("  LCD Mode: 8080 - 8bit");
-
-                FontWrite_Position(0,100);
+                FontWrite_Position(0,180);
                 sprintf(usr_msg, "  X1: %i    ",ts_event.x1);
                 String(usr_msg);
 
-                FontWrite_Position(0,120);
+                FontWrite_Position(0,200);
                 sprintf(usr_msg, "  Y1: %i    ",ts_event.y1);
                 String(usr_msg);
 
-                FontWrite_Position(0,150);
+                FontWrite_Position(0,230);
                 sprintf(usr_msg, "  X2: %i    ",ts_event.x2);
                 String(usr_msg);
 
-                FontWrite_Position(0,170);
+                FontWrite_Position(0,250);
                 sprintf(usr_msg, "  Y2: %i    ",ts_event.y2);
                 String(usr_msg);
 
-                FontWrite_Position(0,200);
+                FontWrite_Position(0,280);
                 sprintf(usr_msg, "  X3: %i    ",ts_event.x3);
                 String(usr_msg);
 
-                FontWrite_Position(0,220);
+                FontWrite_Position(0,300);
                 sprintf(usr_msg, "  Y3: %i    ",ts_event.y3);
                 String(usr_msg);
 
-                FontWrite_Position(0,250);
+                FontWrite_Position(0,330);
                 sprintf(usr_msg, "  X4: %i    ",ts_event.x4);
                 String(usr_msg);
 
-                FontWrite_Position(0,270);
+                FontWrite_Position(0,350);
                 sprintf(usr_msg, "  Y4: %i    ",ts_event.y4);
                 String(usr_msg);
 
-                FontWrite_Position(0,300);
+                FontWrite_Position(0,380);
                 sprintf(usr_msg, "  X5: %i    ",ts_event.x5);
                 String(usr_msg);
 
-                FontWrite_Position(0,320);
+                FontWrite_Position(0,400);
                 sprintf(usr_msg, "  Y5: %i    ",ts_event.y5);
                 String(usr_msg);
 
                 switch(ts_event.touch_point)
                 {
                     case 5:
-                        DrawCircle(OldTouch.x5,OldTouch.y5,fSize,color_white,1);delay_us((fSize*10));
-                        DrawCircle(ts_event.x5,ts_event.y5,fSize,color_purple,1);delay_us((fSize*10));
+                        DrawCircle(OldTouch.x5,OldTouch.y5,fSize,color_white,1);delay_us((fSize*15));
+                        DrawCircle(ts_event.x5,ts_event.y5,fSize,color_purple,1);delay_us((fSize*15));
                     case 4:
-                        DrawCircle(OldTouch.x4,OldTouch.y4,fSize,color_white,1);delay_us((fSize*10));
-                        DrawCircle(ts_event.x4,ts_event.y4,fSize,color_cyan,1);delay_us((fSize*10));
+                        DrawCircle(OldTouch.x4,OldTouch.y4,fSize,color_white,1);delay_us((fSize*15));
+                        DrawCircle(ts_event.x4,ts_event.y4,fSize,color_cyan,1);delay_us((fSize*15));
                     case 3:
-                        DrawCircle(OldTouch.x3,OldTouch.y3,fSize,color_white,1);delay_us((fSize*10));
-                        DrawCircle(ts_event.x3,ts_event.y3,fSize,color_blue,1);delay_us((fSize*10));
+                        DrawCircle(OldTouch.x3,OldTouch.y3,fSize,color_white,1);delay_us((fSize*15));
+                        DrawCircle(ts_event.x3,ts_event.y3,fSize,color_blue,1);delay_us((fSize*15));
                     case 2:
-                        DrawCircle(OldTouch.x2,OldTouch.y2,fSize,color_white,1);delay_us((fSize*10));
-                        DrawCircle(ts_event.x2,ts_event.y2,fSize,color_green,1);delay_us((fSize*10));
+                        DrawCircle(OldTouch.x2,OldTouch.y2,fSize,color_white,1);delay_us((fSize*15));
+                        DrawCircle(ts_event.x2,ts_event.y2,fSize,color_green,1);delay_us((fSize*15));
                     case 1:
-                        DrawCircle(OldTouch.x1,OldTouch.y1,fSize,color_white,1);delay_us((fSize*10));
-                        DrawCircle(ts_event.x1,ts_event.y1,fSize,color_red,1);delay_us((fSize*10));
+                        DrawCircle(OldTouch.x1,OldTouch.y1,fSize,color_white,1);delay_us((fSize*15));
+                        DrawCircle(ts_event.x1,ts_event.y1,fSize,color_red,1);delay_us((fSize*15));
                         break;
                 }
 
@@ -187,13 +369,7 @@ void main() {
             ts_event.Key_Sta=Key_Up;
         }
     }
-    while(1)
-    {
-        USR_LED = 0;
-        delay_ms(160);
-        USR_LED = 1;
-        delay_ms(160);
-    }
+
 }
 
 void init_board(void)

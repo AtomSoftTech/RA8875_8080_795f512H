@@ -1,8 +1,6 @@
 #ifndef FT5206_H
 #define	FT5206_H
-
-#include "fubsd.h"
-#include <plib.h>
+#include "main.h"
 
 void _nop_();
 /* touch panel interface define */
@@ -17,18 +15,17 @@ void _nop_();
 #define Key_Up   0x00
 
 
-
 typedef struct _Touch_ {
-    UINT    x1;
-    UINT    y1;
-    UINT    x2;
-    UINT    y2;
-    UINT    x3;
-    UINT    y3;
-    UINT    x4;
-    UINT    y4;
-    UINT    x5;
-    UINT    y5;
+    unsigned int    x1;
+    unsigned int    y1;
+    unsigned int    x2;
+    unsigned int    y2;
+    unsigned int    x3;
+    unsigned int    y3;
+    unsigned int    x4;
+    unsigned int    y4;
+    unsigned int    x5;
+    unsigned int    y5;
     unsigned char   touch_point;
     unsigned char   Key_Sta;
 } Touch;
@@ -52,7 +49,7 @@ unsigned char TOUCH_Read_Byte(unsigned char ack);
 void  TOUCH_Wr_Reg(unsigned char RegIndex,unsigned char RegValue1);
 void  TOUCH_RdParFrPCTPFun(unsigned char *PCTP_Par,unsigned char ValFlag);
 unsigned char TOUCH_Read_Reg(unsigned char RegIndex);
-void  Draw_Big_Point(UINT x,UINT y,UINT colour);
+void  Draw_Big_Point(unsigned int x,unsigned int y,unsigned int colour);
 unsigned char ft5x0x_read_data(void);  //unsigned char ft5x0x_read_data(void);
 
 char CheckPen(void);

@@ -35,7 +35,8 @@
 #define LCD_CS_LOW()        LCD_CS = 0
 #define LCD_CS_HIGH()       LCD_CS = 1
 
-typedef unsigned int uint;
+//typedef unsigned int uint;
+
 typedef unsigned char uchar;
 typedef unsigned long ulong;
 
@@ -97,9 +98,9 @@ typedef unsigned long ulong;
 #define color_purple  color_red|color_blue
 
 
-void Delay1ms(uint i);
-void Delay10ms(uint i);
-void Delay100ms(uint i);
+void Delay1ms(unsigned int i);
+void Delay10ms(unsigned int i);
+void Delay100ms(unsigned int i);
 void NextStep(void);
 
 void LCD_CmdWrite(unsigned char cmd);
@@ -114,25 +115,25 @@ void Chk_Busy(void);
 void Chk_BTE_Busy(void);
 void Chk_DMA_Busy(void);
 void PLL_ini(void);
-void Active_Window(uint XL,uint XR ,uint YT ,uint YB);
+void Active_Window(unsigned int XL,unsigned int XR ,unsigned int YT ,unsigned int YB);
 void LCD_Initial(void);
-void Text_Background_Color1(uint b_color);
+void Text_Background_Color1(unsigned int b_color);
 void Text_Background_Color(unsigned char setR, uchar setG, uchar setB);
-void Text_Foreground_Color1(uint b_color);
+void Text_Foreground_Color1(unsigned int b_color);
 void Text_Foreground_Color(unsigned char setR,uchar setG,uchar setB);
-void BTE_Size(uint width, uint height);
-void BTE_Source(uint SX,uint DX ,uint SY ,uint DY);
-void MemoryWrite_Position(uint X,uint Y);
-void FontWrite_Position(uint X,uint Y);
+void BTE_Size(unsigned int width, unsigned int height);
+void BTE_Source(unsigned int SX,unsigned int DX ,unsigned int SY ,unsigned int DY);
+void MemoryWrite_Position(unsigned int X,unsigned int Y);
+void FontWrite_Position(unsigned int X,unsigned int Y);
 void String(unsigned char *str);
-void Scroll_Window(uint XL,uint XR ,uint YT ,uint YB);
-void Scroll(uint X,uint Y);
-void DMA_block_mode_size_setting(uint BWR,uint BHR,uint SPWR);
+void Scroll_Window(unsigned int XL,unsigned int XR ,unsigned int YT ,unsigned int YB);
+void Scroll(unsigned int X,unsigned int Y);
+void DMA_block_mode_size_setting(unsigned int BWR,unsigned int BHR,unsigned int SPWR);
 void DMA_Start_address_setting(ulong set_address);
-void  Draw_Circle(uint X,uint Y,uint R);
-void  Draw_Ellipse(uint X,uint Y,uint R1,uint R2);
-void Draw_Line(uint XS,uint XE ,uint YS,uint YE);
-void Draw_Triangle(uint X3,uint Y3);
+void  Draw_Circle(unsigned int X,unsigned int Y,unsigned int R);
+void  Draw_Ellipse(unsigned int X,unsigned int Y,unsigned int R1,unsigned int R2);
+void Draw_Line(unsigned int XS,unsigned int XE ,unsigned int YS,unsigned int YE);
+void Draw_Triangle(unsigned int X3,unsigned int Y3);
 char Touch_Status(void);
 char Chk_INT(void);
 char Chk_INT2(void);
@@ -141,57 +142,57 @@ unsigned char ADC_Y(void);
 unsigned char ADC_XY(void);
 void TP(void);
 void Displaypicture(unsigned char picnum);
-void CutPictrue(unsigned char picnum,uint x1,uint y1,uint x2,uint y2,unsigned long x,unsigned long y);
+void CutPictrue(unsigned char picnum,unsigned int x1,unsigned int y1,unsigned int x2,unsigned int y2,unsigned long x,unsigned long y);
 void Test(void);
 
-void MakeCircle(uint x0, uint y0, uint r, uint color, char filled);
+void MakeCircle(unsigned int x0, unsigned int y0, unsigned int r, unsigned int color, char filled);
 char waitPoll(uchar regname, uchar waitflag);
 void fillRect(void);
-void drawRect(uint x, uint y, uint w, uint h, uint color, char filled);
-void drawLine(uint x0, uint x1, uint y0, uint y1, uint color);
+void drawRect(unsigned int x, unsigned int y, unsigned int w, unsigned int h, unsigned int color, char filled);
+void drawLine(unsigned int x0, unsigned int x1, unsigned int y0, unsigned int y1, unsigned int color);
 
 #define FILL 1
 #define NOFILL 0
 
 typedef struct _Button_ {
-    uint top;
-    uint left;
-    uint width;
-    uint height;
+    unsigned int top;
+    unsigned int left;
+    unsigned int width;
+    unsigned int height;
 } Button;
 
 
 typedef struct _Fader_ {
-    uint    bar_value;
-    uint    bar_max;
+    unsigned int    bar_value;
+    unsigned int    bar_max;
 
-    uint    sel_width;
-    uint    sel_height;
-    uint    sel_color;
+    unsigned int    sel_width;
+    unsigned int    sel_height;
+    unsigned int    sel_color;
 
-    uint    bar_x;
-    uint    bar_y;
-    uint    bar_width;
-    uint    bar_height;
-    uint    bar_color;
+    unsigned int    bar_x;
+    unsigned int    bar_y;
+    unsigned int    bar_width;
+    unsigned int    bar_height;
+    unsigned int    bar_color;
     
 } Fader;
 
 typedef struct _TouchButton_ {
-    uint top;
-    uint left;
-    uint width;
-    uint height;
-    uint fore_color;
-    uint back_color;
+    unsigned int top;
+    unsigned int left;
+    unsigned int width;
+    unsigned int height;
+    unsigned int fore_color;
+    unsigned int back_color;
     char text[13];
 } TouchButton;
 
 typedef struct _ImageButton_ {
-    uint top;
-    uint left;
-    uint width;
-    uint height;
+    unsigned int top;
+    unsigned int left;
+    unsigned int width;
+    unsigned int height;
     char up[13];
     char down[13];
 } ImageButton;
@@ -206,21 +207,21 @@ void ClearScreen(char area);
 void Display(char val);
 void Layers(char val);
 void FontSize (char size);
-void SetColors(uint f_color, uint b_color);
-void GraphicCursor(uint x, uint y, uchar color1, uchar color2);
+void SetColors(unsigned int f_color, unsigned int b_color);
+void GraphicCursor(unsigned int x, unsigned int y, uchar color1, uchar color2);
 void Backlight(uchar div, uchar pwm);
-void DrawLine (uint xs,uint ys,uint xe,uint ye, uint color);
-void DrawSquare ( uint x,uint y,uint w,uint h, uint color, char fill);
-void DrawCircle(uint x0, uint y0, uint r, uint color, char filled);
-void LCD_ReadBuff(char *buff, uint len);
-void SetGraphicsCursorRead(uint x, uint y);
-void SetGraphicsCursorWrite(uint x, uint y);
-void WriteCommandW(uchar command, uint data);
+void DrawLine (unsigned int xs,unsigned int ys,unsigned int xe,unsigned int ye, unsigned int color);
+void DrawSquare ( unsigned int x,unsigned int y,unsigned int w,unsigned int h, unsigned int color, char fill);
+void DrawCircle(unsigned int x0, unsigned int y0, unsigned int r, unsigned int color, char filled);
+void LCD_ReadBuff(char *buff, unsigned int len);
+void SetGraphicsCursorRead(unsigned int x, unsigned int y);
+void SetGraphicsCursorWrite(unsigned int x, unsigned int y);
+void WriteCommandW(uchar command, unsigned int data);
 void WriteCommand(unsigned char command, unsigned int data);
-void putPixelStream(uchar * p, uint count, uint x, uint y);
-void OpenASI (char *filename, uint x, uint y);
-void ReplaceASI (char *filename, uint x, uint y, uint w, uint h);
+void putPixelStream(uchar * p, unsigned int count, unsigned int x, unsigned int y);
+void OpenASI (char *filename, unsigned int x, unsigned int y);
+void ReplaceASI (char *filename, unsigned int x, unsigned int y, unsigned int w, unsigned int h);
 char isImageButton (ImageButton btn);
 void BtnClick(Button btn);
-void DrawFinger(uint x,uint y,uint colour);
+void DrawFinger(unsigned int x,unsigned int y,unsigned int colour);
 #endif

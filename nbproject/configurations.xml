@@ -9,6 +9,12 @@
       <itemPath>ft5206.h</itemPath>
       <itemPath>RA8875.h</itemPath>
       <itemPath>main.h</itemPath>
+      <itemPath>diskio.h</itemPath>
+      <itemPath>ff.h</itemPath>
+      <itemPath>ffconf.h</itemPath>
+      <itemPath>integer.h</itemPath>
+      <itemPath>spi2.h</itemPath>
+      <itemPath>keyboard.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -21,6 +27,11 @@
       <itemPath>ft5206.c</itemPath>
       <itemPath>i2c2.c</itemPath>
       <itemPath>RA8875.c</itemPath>
+      <itemPath>diskio.c</itemPath>
+      <itemPath>mmc_pic24f.c</itemPath>
+      <itemPath>spi2.c</itemPath>
+      <itemPath>ff.c</itemPath>
+      <itemPath>keyboard.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -50,7 +61,7 @@
         </archiverTool>
         <loading>
           <useAlternateLoadableFile>false</useAlternateLoadableFile>
-          <parseOnProdLoad>false</parseOnProdLoad>
+          <parseOnProdLoad>true</parseOnProdLoad>
           <alternateLoadableFile></alternateLoadableFile>
         </loading>
       </compileType>
@@ -200,7 +211,6 @@
         <property key="UART4" value="true"/>
         <property key="UART5" value="true"/>
         <property key="UART6" value="true"/>
-        <property key="firmware.download.all" value="false"/>
         <property key="hwtoolclock.frcindebug" value="false"/>
         <property key="memories.aux" value="false"/>
         <property key="memories.bootflash" value="true"/>

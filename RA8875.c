@@ -12,7 +12,11 @@
 #include "main.h"
 #include <xc.h>
 #include <plib.h>
+
+#include "spi2.h"
 #include "ra8875.h"
+#include "ff.h"
+#include "diskio.h"
 #include "ft5206.h"
 
 
@@ -21,32 +25,35 @@
 #define write_cmd_addr  0x0e  //slave addresses with write command
 #define read_cmd_addr  0x0f  //slave addresses with read status
 
+#define SPI_Write(var) SpiTransfer(var)
+#define SPI_Read() SpiTransfer(0xFF)
+
 unsigned int X1,Y1,X2,Y2,X3,Y3,X4,Y4;
 unsigned char taby[4];
 unsigned char tabx[4];
-uint x[6],y[6],xmin,ymin,xmax,ymax;
+unsigned int x[6],y[6],xmin,ymin,xmax,ymax;
 
-//volatile uchar IMAGE_BUFF[IMAGEBUFF_LEN];
+volatile uchar IMAGE_BUFF[IMAGEBUFF_LEN];
 
-void Delay1ms(uint i)
+void Delay1ms(unsigned int i)
 {
     while(i--)
         delay_ms(1);
 }
 
-void Delay10ms(uint i)
+void Delay10ms(unsigned int i)
 {
     while(i--)
         delay_ms(10);
 }
 
-void Delay100ms(uint i)
+void Delay100ms(unsigned int i)
 {
     while(i--)
 	delay_ms(100);
 }
 
-void Delay1us(uint i)
+void Delay1us(unsigned int i)
 {
    delay_us(i);
 }
@@ -175,7 +182,7 @@ void PLL_ini(void)
     Delay1ms(1);
 }	
 
-void Active_Window(uint XL,uint XR ,uint YT ,uint YB)
+void Active_Window(unsigned int XL,unsigned int XR ,unsigned int YT ,unsigned int YB)
 {
 	uchar temp;
     //setting active window X
@@ -277,7 +284,7 @@ void LCD_Initial(void)
 
 
 ///////////////Background color settings
-void Text_Background_Color1(uint b_color)
+void Text_Background_Color1(unsigned int b_color)
 {
 	
 	LCD_CmdWrite(0x60);//BGCR0
@@ -304,7 +311,7 @@ void Text_Background_Color(uchar setR, uchar setG, uchar setB)
 } 
 
 ////////////////Foreground color settings
-void Text_Foreground_Color1(uint b_color)
+void Text_Foreground_Color1(unsigned int b_color)
 {
 	
 	LCD_CmdWrite(0x63);//BGCR0
@@ -330,7 +337,7 @@ void Text_Foreground_Color(uchar setR,uchar setG,uchar setB)
 	LCD_DataWrite(setB);
 }
 //////////////////BTE area size settings
-void BTE_Size(uint width,uint height)
+void BTE_Size(unsigned int width,unsigned int height)
 {
     uchar temp;
 	temp=width;   
@@ -349,7 +356,7 @@ void BTE_Size(uint width,uint height)
 }		
 
 ////////////////////BTE starting position
-void BTE_Source(uint SX,uint DX ,uint SY ,uint DY)
+void BTE_Source(unsigned int SX,unsigned int DX ,unsigned int SY ,unsigned int DY)
 {
 	uchar temp,temp1;
     
@@ -390,7 +397,7 @@ void BTE_Source(uint SX,uint DX ,uint SY ,uint DY)
 	LCD_DataWrite(temp);
 }				
 ///////////////Memory write position
-void MemoryWrite_Position(uint X,uint Y)
+void MemoryWrite_Position(unsigned int X,unsigned int Y)
 {
 	uchar temp;
 
@@ -410,7 +417,7 @@ void MemoryWrite_Position(uint X,uint Y)
 }
 
 ////////////////Text write position
-void FontWrite_Position(uint X,uint Y)
+void FontWrite_Position(unsigned int X,unsigned int Y)
 {
 	uchar temp;
 	temp=X;   
@@ -444,7 +451,7 @@ void String(uchar *str)
 		
 
 /////////////////Scroll window size
-void Scroll_Window(uint XL,uint XR ,uint YT ,uint YB)
+void Scroll_Window(unsigned int XL,unsigned int XR ,unsigned int YT ,unsigned int YB)
 {
 	uchar temp;    
 	temp=XL;   
@@ -477,7 +484,7 @@ void Scroll_Window(uint XL,uint XR ,uint YT ,uint YB)
 }  
 
 ///////////////Window scroll offset Settings
-void Scroll(uint X,uint Y)
+void Scroll(unsigned int X,unsigned int Y)
 {
 	uchar temp;
     
@@ -497,7 +504,7 @@ void Scroll(uint X,uint Y)
 }	   	  
 
 ///////////////The FLASH reading area   setting
-void DMA_block_mode_size_setting(uint BWR,uint BHR,uint SPWR)
+void DMA_block_mode_size_setting(unsigned int BWR,unsigned int BHR,unsigned int SPWR)
 {
   	LCD_CmdWrite(0xB4);
   	LCD_DataWrite(BWR);
@@ -531,7 +538,7 @@ void DMA_Start_address_setting(ulong set_address)
   	LCD_DataWrite(set_address>>24);
 }
 ///////////drawing circle
-void  Draw_Circle(uint X,uint Y,uint R)
+void  Draw_Circle(unsigned int X,unsigned int Y,unsigned int R)
 {
 	uchar temp;
     
@@ -555,7 +562,7 @@ void  Draw_Circle(uint X,uint Y,uint R)
 } 
 
 ///////////drawing elliptic curve
-void  Draw_Ellipse(uint X,uint Y,uint R1,uint R2)
+void  Draw_Ellipse(unsigned int X,unsigned int Y,unsigned int R1,unsigned int R2)
 {
 	uchar temp;    
 	temp=X;   
@@ -588,7 +595,7 @@ void  Draw_Ellipse(uint X,uint Y,uint R1,uint R2)
 } 
 
 ///////////drawing line, rectangle, triangle
-void Draw_Line(uint XS,uint XE ,uint YS,uint YE)
+void Draw_Line(unsigned int XS,unsigned int XE ,unsigned int YS,unsigned int YE)
 {	
     uchar temp;    
 	temp=XS;   
@@ -621,7 +628,7 @@ void Draw_Line(uint XS,uint XE ,uint YS,uint YE)
 }
 
 ////////////draw a triangle of three point 
-void Draw_Triangle(uint X3,uint Y3)
+void Draw_Triangle(unsigned int X3,unsigned int Y3)
 {
     uchar temp;    
 	temp=X3;   
@@ -684,7 +691,7 @@ void Displaypicture(unsigned char picnum)
 //Shear pictures number:picnum
 //display position:x1,y1,x2,y2
 //the upper left of the shear image cooRDinates :x,y
-void CutPictrue(unsigned char picnum,uint x1,uint y1,uint x2,uint y2,unsigned long x,unsigned long y)
+void CutPictrue(unsigned char picnum,unsigned int x1,unsigned int y1,unsigned int x2,unsigned int y2,unsigned long x,unsigned long y)
 {
     unsigned long cutaddress;
     unsigned char picnumtemp;
@@ -740,7 +747,7 @@ void Test(void)
 }
 
 
-void drawLine3(uint x0, uint x1, uint y0, uint y1, uint color)
+void drawLine3(unsigned int x0, unsigned int x1, unsigned int y0, unsigned int y1, unsigned int color)
 {
   /* Set X */
   LCD_CmdWrite(0x91);
@@ -874,7 +881,7 @@ void FontSize (char size)
 //
 // Set Fore/Back ColoRS
 //
-void SetColoRS(uint f_color, uint b_color)
+void SetColoRS(unsigned int f_color, unsigned int b_color)
 {
     LCD_CmdWrite(0x60);//BGCR0
     LCD_DataWrite((unsigned char)(b_color>>11));
@@ -897,7 +904,7 @@ void SetColoRS(uint f_color, uint b_color)
 //
 // Setup Graphic CuRSor ???
 //
-void GraphicCuRSor(uint x, uint y, uchar color1, uchar color2)
+void GraphicCuRSor(unsigned int x, unsigned int y, uchar color1, uchar color2)
 {
     LCD_CmdWrite(0x80);
     LCD_DataWrite((uchar)(x&0xFF));
@@ -938,7 +945,7 @@ void Backlight(uchar div, uchar pwm)
 // ye = POINT 2 Y location
 // color = color of line
 //
-void DrawLine ( uint xs,uint ys,uint xe,uint ye, uint color)
+void DrawLine ( unsigned int xs,unsigned int ys,unsigned int xe,unsigned int ye, unsigned int color)
 {
     LCD_CmdWrite(0x91);
     LCD_DataWrite((uchar)xs);
@@ -982,7 +989,7 @@ void DrawLine ( uint xs,uint ys,uint xe,uint ye, uint color)
 //  color = COLOR of Square/Rect
 //  fill = 0 = NOFILL, 1+ = FILL
 //
-void DrawSquare ( uint x,uint y,uint w,uint h, uint color, char fill)
+void DrawSquare ( unsigned int x,unsigned int y,unsigned int w,unsigned int h, unsigned int color, char fill)
 {
     w+= x;
     h+= y;
@@ -1029,7 +1036,7 @@ void DrawSquare ( uint x,uint y,uint w,uint h, uint color, char fill)
     /* Wait for the command to finish */
 //    waitPoll(RA8875_DCR, RA8875_DCR_LINESQUTRI_STATUS);
 }
-void DrawCircle(uint x0, uint y0, uint r, uint color, char filled)
+void DrawCircle(unsigned int x0, unsigned int y0, unsigned int r, unsigned int color, char filled)
 {
   /* Set X */
   LCD_CmdWrite(0x99);
@@ -1075,8 +1082,8 @@ char isImageButton (ImageButton btn)
     char isInX = 0;
     char isInY = 0;
     char isIt = 0;
-    uint x = ts_event.x1;
-    uint y = ts_event.y1;
+    unsigned int x = ts_event.x1;
+    unsigned int y = ts_event.y1;
 
     if(x >= btn.left)
     {
@@ -1104,7 +1111,7 @@ char isImageButton (ImageButton btn)
         return 0;
 }
 
-void SetColors(uint f_color, uint b_color)
+void SetColors(unsigned int f_color, unsigned int b_color)
 {
     LCD_CmdWrite(0x60);//BGCR0
     LCD_DataWrite((unsigned char)(b_color>>11));
@@ -1125,7 +1132,7 @@ void SetColors(uint f_color, uint b_color)
     LCD_DataWrite((unsigned char)(f_color));
 }
 
-void DrawFinger(uint x,uint y,uint colour)
+void DrawFinger(unsigned int x,unsigned int y,unsigned int colour)
 {
     Write_Dir(0x40,0x00);//The drawing mode
     MemoryWrite_Position(x,y);//Memory write position
@@ -1137,4 +1144,135 @@ void DrawFinger(uint x,uint y,uint colour)
     LCD_DataWrite(colour);
     LCD_DataWrite(colour);
 }
+void SetGraphicsCursorRead(unsigned int x, unsigned int y)
+{
+    //Write_Dir(0x40, 0);  // Graphics mode
+    //Write_Dir(0x45, 0);  // left->right, top->bottom
+    Write_Dir(0x4A, x& 0xFF);
+    Write_Dir(0x4B, (x>>8));
+    Write_Dir(0x4C, y& 0xFF);
+    Write_Dir(0x4D, (y>>8));
 
+}
+
+void SetGraphicsCursorWrite(unsigned int x, unsigned int y)
+{
+    //Write_Dir(0x40, 0);  // Graphics mode
+    //Write_Dir(0x45, 0);  // left->right, top->bottom
+    Write_Dir(0x46, x & 0xFF);
+    Write_Dir(0x47, (x>>8)&3);
+    Write_Dir(0x48, y & 0xFF);
+    Write_Dir(0x49, (y>>8)&1);
+
+}
+void OpenASI (char *filename, unsigned int x, unsigned int y)
+{
+    unsigned int w = 0;
+    unsigned int h = 0;
+    UINT br;         /* File read/write count */
+    FRESULT fr;          /* FatFs return code */
+    unsigned int len;
+    unsigned int line;
+    FIL fil;
+    unsigned int top, left;
+
+    Chk_Busy();
+    fr = f_open(&fil, filename, FA_OPEN_EXISTING | FA_READ);
+    fr = f_read(&fil, IMAGE_BUFF, 0x14, &br);
+
+    h = IMAGE_BUFF[0x10] | (IMAGE_BUFF[0x11]<<8);
+    w = IMAGE_BUFF[0x12] | (IMAGE_BUFF[0x13]<<8);;
+
+    len = ((w*h)*2);
+    line = (w*2);
+
+    f_lseek(&fil, 0x14);
+
+    for(top=0;top<h;top++)
+    {
+        Write_Dir(0x40,0x00);    // Graphics write mode
+        SetGraphicsCursorWrite(x, (y+top));
+        LCD_CmdWrite(0x02);
+
+        fr = f_read(&fil, IMAGE_BUFF, line, &br);  /* Read a chunk of source file */
+        if (fr != FR_OK) break;
+
+        //Chk_Busy();
+        //CS_LOW(LCD);
+        //SPI_Write(0x00);         // Cmd: write data
+
+        for(left=0;left<line;left++)
+        {
+            LCD_DataWrite(IMAGE_BUFF[left]);//Chk_Busy();
+        }
+        /*
+        for(left=0;left<line;left+=2)
+        {
+            LCD_DataWrite(IMAGE_BUFF[left]);//Chk_Busy();
+            LCD_DataWrite(IMAGE_BUFF[left+1]);//Chk_Busy();
+        }
+        */
+
+        //CS_HIGH();
+    }
+
+    //CS_HIGH();
+    f_close(&fil);
+}
+
+void fillRect(void) {
+  LCD_CmdWrite(RA8875_DCR);
+  LCD_DataWrite(RA8875_DCR_LINESQUTRI_STOP | RA8875_DCR_DRAWSQUARE);
+  LCD_DataWrite(RA8875_DCR_LINESQUTRI_START | RA8875_DCR_FILL | RA8875_DCR_DRAWSQUARE);
+}
+void drawRect(unsigned int x, unsigned int y, unsigned int w, unsigned int h, unsigned int color, char filled)
+{
+    w += x;
+    h += y;
+
+  /* Set X */
+  LCD_CmdWrite(0x91);
+  LCD_DataWrite(x);
+  LCD_CmdWrite(0x92);
+  LCD_DataWrite(x >> 8);
+
+  /* Set Y */
+  LCD_CmdWrite(0x93);
+  LCD_DataWrite(y);
+  LCD_CmdWrite(0x94);
+  LCD_DataWrite(y >> 8);
+
+  /* Set X1 */
+  LCD_CmdWrite(0x95);
+  LCD_DataWrite(w);
+  LCD_CmdWrite(0x96);
+  LCD_DataWrite((w) >> 8);
+
+  /* Set Y1 */
+  LCD_CmdWrite(0x97);
+  LCD_DataWrite(h);
+  LCD_CmdWrite(0x98);
+  LCD_DataWrite((h) >> 8);
+
+  /* Set Color */
+  LCD_CmdWrite(0x63);
+  LCD_DataWrite((color & 0xf800) >> 11);
+  LCD_CmdWrite(0x64);
+  LCD_DataWrite((color & 0x07e0) >> 5);
+  LCD_CmdWrite(0x65);
+  LCD_DataWrite((color & 0x001f));
+
+  /* Draw! */
+  LCD_CmdWrite(RA8875_DCR);
+  if (filled)
+  {
+    LCD_DataWrite(0xB0);
+  }
+  else
+  {
+    LCD_DataWrite(0x90);
+  }
+
+  /* Wait for the command to finish */
+//  waitPoll(RA8875_DCR, RA8875_DCR_LINESQUTRI_STATUS);
+}

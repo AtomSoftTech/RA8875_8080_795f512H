@@ -1,6 +1,8 @@
+#include "fubsd.h"
+#include <plib.h>
 #include "i2c2.h"
 #include "ft5206.h"
-#include "main.h"
+
 
 Touch ts_event;
 
