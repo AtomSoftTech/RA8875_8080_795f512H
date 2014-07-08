@@ -3,3 +3,5 @@ RA8875, PIC32MX795F512H
 Includes Capacitive Touch code / Test
 
 Working!
+
+-7/8/2014... Added FatFS and Keyboard
